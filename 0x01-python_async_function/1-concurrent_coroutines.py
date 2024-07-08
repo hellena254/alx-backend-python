@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import asyncio
 from typing import List
-from 0-basic_async_syntax import wait_random
+
+wait_random = __import__('0-basic_async_syntax').wait_random
 
 async def wait_n(n: int, max_delay: int) -> List[float]:
     """
@@ -14,15 +15,5 @@ async def wait_n(n: int, max_delay: int) -> List[float]:
     Returns:
     - List[float]: A list of all the delays in ascending order.
     """
-    delays = []
-    for _ in range(n):
-        delay = await wait_random(max_delay)
-        delays.append(delay)
-
-    # Manually sort the list without using sort()
-    for i in range(len(delays)):
-        for j in range(i + 1, len(delays)):
-            if delays[i] > delays[j]:
-                delays[i], delays[j] = delays[j], delays[i]
-
-    return delays
+    tasks = [asyncio.create_task(wait_random(max_delay)) for _ in range(n)]
+    return [await task for task in asyncio.as_completed(tasks)]
